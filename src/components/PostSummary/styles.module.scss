@@ -1,0 +1,31 @@
+.post {
+  display: block;
+  color: var(--gray-200);
+
+  & + .post {
+    margin-top: 3rem;
+  }
+
+  a {
+    color: var(--gray-200);
+  }
+
+  a:hover h1 {
+    color: var(--pink);
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    transition: color 0.2s;
+    color: var(--gray-300);
+  }
+
+  p {
+    font-size: 1.125rem;
+    margin-top: 0.5rem;
+  }
+
+  .infoContainer {
+    margin-top: 1.5rem;
+  }
+}

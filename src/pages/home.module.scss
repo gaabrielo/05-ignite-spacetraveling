@@ -1,1 +1,18 @@
-// TODO
+.container {
+  margin-bottom: 5rem;
+}
+
+.loadMoreButton {
+  background: transparent;
+  color: var(--pink);
+  border: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 4rem 0 0;
+  outline: 0;
+
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+  }
+}

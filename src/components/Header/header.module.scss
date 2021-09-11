@@ -1,1 +1,29 @@
-// TODO
+.smallContainer {
+  height: 6.5625rem;
+}
+
+.largeContainer {
+  height: 10.625rem;
+}
+
+.contentContainer {
+  height: 100%;
+  display: flex;
+  align-items: center;
+
+  a {
+    display: flex;
+    height: fit-content;
+  }
+
+  img {
+    width: 100%;
+    max-width: 15rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .contentContainer {
+    justify-content: center;
+  }
+}
