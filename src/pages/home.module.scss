@@ -1,5 +1,17 @@
 .container {
   margin-bottom: 5rem;
+
+  .header {
+    height: 10.625rem;
+
+    display: flex;
+    align-items: center;
+
+    img {
+      width: 100%;
+      max-width: 15rem;
+    }
+  }
 }
 
 .loadMoreButton {

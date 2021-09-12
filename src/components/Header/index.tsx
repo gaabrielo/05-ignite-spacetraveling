@@ -1,16 +1,11 @@
-import { useRouter } from 'next/router';
 import Link from 'next/link';
 
 import commonStyles from '../../styles/common.module.scss';
 import styles from './header.module.scss';
 
 export default function Header(): JSX.Element {
-  const { route } = useRouter();
-
   return (
-    <header
-      className={route === '/' ? styles.largeContainer : styles.smallContainer}
-    >
+    <header className={styles.container}>
       <div className={`${commonStyles.container} ${styles.contentContainer}`}>
         <Link href="/">
           <a>

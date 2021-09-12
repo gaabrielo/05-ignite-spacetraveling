@@ -76,6 +76,10 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
       </Head>
 
       <main className={`${commonStyles.container} ${styles.container}`}>
+        <header className={styles.header}>
+          <img src="/logo.svg" alt="logo" />
+        </header>
+
         {posts.map(post => (
           <PostSummary key={post.uid} post={post} />
         ))}
@@ -101,7 +105,7 @@ export const getStaticProps: GetStaticProps = async () => {
     [Prismic.predicates.at('document.type', 'blog_post')],
     {
       orderings: '[document.first_publication_date desc]',
-      pageSize: 3,
+      pageSize: 1,
     }
   );
 
@@ -119,7 +123,7 @@ export const getStaticProps: GetStaticProps = async () => {
       ),
       data: {
         title: post.data.title,
-        subtitle: post.data.subtitle || '',
+        subtitle: post.data.subtitle,
         author: post.data.author,
       },
     };
@@ -132,5 +136,6 @@ export const getStaticProps: GetStaticProps = async () => {
         results,
       } as PostPagination,
     },
+    revalidate: 60 * 30, // 30 minutes
   };
 };

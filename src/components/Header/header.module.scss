@@ -1,9 +1,6 @@
-.smallContainer {
+.container {
+  width: 100%;
   height: 6.5625rem;
-}
-
-.largeContainer {
-  height: 10.625rem;
 }
 
 .contentContainer {
@@ -19,11 +16,5 @@
   img {
     width: 100%;
     max-width: 15rem;
-  }
-}
-
-@media (max-width: 720px) {
-  .contentContainer {
-    justify-content: center;
   }
 }
