@@ -3,16 +3,16 @@ import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
 
 import styles from './styles.module.scss';
 
-interface PostContent {
-  body: string;
-  heading: string;
-}
-
 interface PostInfoProps {
   data: {
     date: string;
     author: string;
-    content?: PostContent[];
+    content?: {
+      body: {
+        text: string;
+      }[];
+      heading: string;
+    }[];
   };
 }
 
@@ -23,8 +23,12 @@ export default function PostInfo({ data }: PostInfoProps): JSX.Element {
     const words = data.content?.reduce((acc, content) => {
       const { body, heading } = content;
 
+      const bodyText = body.reduce((fullText, text) => {
+        return fullText + text.text;
+      }, '');
+
       const wordsAmount =
-        (body?.split(' ').length || 0) + (heading?.split(' ').length || 0);
+        (bodyText?.split(' ').length || 0) + (heading?.split(' ').length || 0);
 
       return acc + wordsAmount;
     }, 0);

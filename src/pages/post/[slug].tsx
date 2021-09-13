@@ -1,4 +1,4 @@
-import React from 'react'; // eslint-disable-line
+import React, { useEffect, useState } from 'react'; // eslint-disable-line
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 import { GetStaticPaths, GetStaticProps } from 'next';
@@ -8,6 +8,7 @@ import Prismic from '@prismicio/client';
 
 import { v4 as uuidv4 } from 'uuid';
 import { useRouter } from 'next/router';
+import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
 import Header from '../../components/Header';
 import { getPrismicClient } from '../../services/prismic';
 
@@ -21,12 +22,14 @@ interface Post {
   data: {
     title: string;
     banner: {
-      url?: string;
+      url: string;
     };
     author: string;
     content: {
       heading: string;
-      body: string;
+      body: {
+        text: string;
+      }[];
     }[];
   };
 }
@@ -38,50 +41,113 @@ interface PostProps {
 export default function Post({ post }: PostProps): JSX.Element {
   const router = useRouter();
 
-  if (router.isFallback)
+  if (router.isFallback) {
     return (
       <div className={commonStyles.container}>
         <h1>Carregando...</h1>
       </div>
     );
+  }
+  const [postContent, setPostContent] = useState<Post>();
+  const [readingTime, setReadingTime] = useState(0);
+
+  useEffect(() => {
+    const words = post.data.content?.reduce((acc, content) => {
+      const { body, heading } = content;
+
+      const bodyText = body.reduce((fullText, text) => {
+        return fullText + text.text;
+      }, '');
+
+      const wordsAmount =
+        (bodyText?.split(' ').length || 0) + (heading?.split(' ').length || 0);
+
+      return acc + wordsAmount;
+    }, 0);
+
+    setReadingTime(Math.ceil(words / 200));
+  }, [post.data.content]);
+
+  useEffect(() => {
+    const postFormatted = {
+      first_publication_date: format(
+        new Date(post.first_publication_date),
+        'dd MMM yyyy',
+        {
+          locale: ptBR,
+        }
+      ),
+      data: {
+        title: post.data.title,
+        banner: {
+          url: post.data.banner.url ?? '',
+        },
+        author: post.data.author,
+        content: post.data.content.map(item => {
+          return {
+            heading: item.heading,
+            body: item.body.map(bodyItem => {
+              return { text: bodyItem.text };
+            }),
+          };
+        }),
+      },
+    };
+
+    setPostContent(postFormatted);
+  }, [post]);
 
   return (
     <>
       <Head>
-        <title>{post.data.title || 'spacetraveling'}</title>
+        <title>{postContent?.data.title || 'spacetraveling'}</title>
       </Head>
 
       <main className={styles.container}>
         <Header />
-        {post.data.banner.url && (
-          <section className={styles.banner}>
-            <img src={String(post.data.banner.url)} alt="banner" />
-          </section>
-        )}
-        <section className={`${commonStyles.container} ${styles.content}`}>
-          <h1>{post.data.title}</h1>
-          <div className={styles.info}>
-            <PostInfo
-              data={{
-                date: post.first_publication_date,
-                author: post.data.author,
-                content: post.data.content,
-              }}
-            />
-          </div>
+        {!postContent ? (
+          <h1>Carregando...</h1>
+        ) : (
+          <>
+            {postContent.data.banner.url && (
+              <section className={styles.banner}>
+                <img src={String(postContent.data.banner.url)} alt="banner" />
+              </section>
+            )}
+            <section className={`${commonStyles.container} ${styles.content}`}>
+              <h1>{postContent.data.title}</h1>
+              <div className={styles.info}>
+                <time>
+                  <FiCalendar />
+                  {postContent.first_publication_date}
+                </time>
+                <span>
+                  <FiUser />
+                  {postContent.data.author}
+                </span>
+                <span>
+                  <FiClock />
+                  {readingTime} min.
+                </span>
+              </div>
 
-          <div className={styles.postTextContainer}>
-            {post.data.content.map(item => (
-              <React.Fragment key={uuidv4()}>
-                <h1>{item.heading}</h1>
-                <div
-                  className={styles.postTextBody}
-                  dangerouslySetInnerHTML={{ __html: item.body }}
-                />
-              </React.Fragment>
-            ))}
-          </div>
-        </section>
+              <div className={styles.postTextContainer}>
+                {post.data.content.map(item => (
+                  <React.Fragment key={uuidv4()}>
+                    <h1>{item.heading}</h1>
+                    {item.body.map(text => (
+                      <div
+                        key={uuidv4()}
+                        className={styles.postTextBody}
+                        dangerouslySetInnerHTML={{ __html: text.text }}
+                      />
+                    ))}
+                  </React.Fragment>
+                ))}
+              </div>
+            </section>
+          </>
+        )}
       </main>
     </>
   );
@@ -124,34 +190,9 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   // console.log(JSON.stringify(response, null, 2));
 
-  const postContent = response.data.content.map(item => {
-    return {
-      heading: item.heading,
-      body: RichText.asHtml(item.body),
-    };
-  });
-
-  const post = {
-    first_publication_date: format(
-      new Date(response.first_publication_date),
-      'dd MMM yyyy',
-      {
-        locale: ptBR,
-      }
-    ),
-    data: {
-      title: response.data.title,
-      banner: {
-        url: response.data.banner.url ?? null,
-      },
-      author: response.data.author,
-      content: postContent,
-    },
-  };
-
   return {
     props: {
-      post,
+      post: response,
     },
     revalidate: 60 * 60 * 24, // 24 hours
   };
