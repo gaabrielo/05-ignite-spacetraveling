@@ -127,7 +127,7 @@ export default function Post({ post }: PostProps): JSX.Element {
                 </span>
                 <span>
                   <FiClock />
-                  {readingTime} min.
+                  {readingTime} min
                 </span>
               </div>
 
